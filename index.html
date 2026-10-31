@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070b14">
+<title>بريد لحظي — بريد إلكتروني مؤقت مجاني</title>
+<meta name="description" content="أنشئ بريداً إلكترونياً مؤقتاً فورياً واستقبل الرسائل مباشرة — بدون تسجيل.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b14;
+    --card:rgba(255,255,255,.045);
+    --card-solid:#0d1322;
+    --border:rgba(255,255,255,.09);
+    --border-strong:rgba(255,255,255,.16);
+    --text:#eef2fb;
+    --muted:#8b96ad;
+    --accent1:#7c5cff;
+    --accent2:#22d3ee;
+    --grad:linear-gradient(135deg,#7c5cff 0%,#22d3ee 100%);
+    --green:#34d399;
+    --amber:#fbbf24;
+    --red:#f87171;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    min-height:100dvh;
+    overflow-x:hidden;
+    padding-bottom:env(safe-area-inset-bottom);
+    display:flex;flex-direction:column;
+  }
+  main{flex:1;width:100%}
+  ::selection{background:rgba(124,92,255,.4)}
+
+  /* ── background orbs ─────────────────────────── */
+  .orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5;animation:drift 22s ease-in-out infinite alternate}
+  .orb.a{width:520px;height:520px;background:#3b2d8f;top:-160px;inset-inline-start:-140px}
+  .orb.b{width:460px;height:460px;background:#0e4a5e;bottom:-180px;inset-inline-end:-120px;animation-delay:-8s}
+  .orb.c{width:300px;height:300px;background:#4c1d95;top:40%;inset-inline-start:55%;opacity:.3;animation-delay:-14s}
+  @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(60px,-40px) scale(1.12)}}
+  @media (prefers-reduced-motion:reduce){.orb{animation:none}}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+  /* ── header ─────────────────────────────────── */
+  header{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    background:rgba(7,11,20,.72);
+    border-bottom:1px solid var(--border);
+    padding-top:env(safe-area-inset-top);
+  }
+  .header-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{
+    width:42px;height:42px;border-radius:13px;background:var(--grad);
+    display:grid;place-items:center;flex-shrink:0;
+    box-shadow:0 6px 22px rgba(124,92,255,.45);
+  }
+  .logo svg{width:22px;height:22px;stroke:#fff}
+  .brand h1{font-size:1.15rem;font-weight:800;letter-spacing:-.2px}
+  .brand small{display:block;font-size:.72rem;color:var(--muted);font-weight:500}
+  .pill{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 14px;border-radius:99px;font-size:.8rem;font-weight:700;
+    background:var(--card);border:1px solid var(--border);color:var(--muted);
+    min-height:36px;white-space:nowrap;
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);transition:.3s}
+  .pill.ok .dot{background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.5);animation:pulse 2s infinite}
+  .pill.err .dot{background:var(--red)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.45)}70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+
+  /* ── hero / address card ─────────────────────── */
+  main{padding:34px 0 70px}
+  .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;align-items:start}
+  @media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    padding:24px;min-width:0;
+  }
+
+  .addr-card h2{font-size:1.35rem;font-weight:800;margin-bottom:6px}
+  .addr-card .sub{color:var(--muted);font-size:.88rem;margin-bottom:20px}
+
+  .addr-box{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(0,0,0,.35);
+    border:1px dashed var(--border-strong);
+    border-radius:14px;
+    padding:16px 18px;min-height:64px;
+    cursor:pointer;transition:.25s;
+    position:relative;overflow:hidden;
+  }
+  .addr-box:hover{border-color:var(--accent2)}
+  .addr-box .addr{
+    flex:1;font-family:ui-monospace,'Cascadia Mono',Menlo,Consolas,monospace;
+    font-size:1.06rem;font-weight:600;direction:ltr;text-align:left;
+    word-break:break-all;color:#fff;letter-spacing:.2px;
+  }
+  .addr-box .copy-ic{width:20px;height:20px;stroke:var(--muted);flex-shrink:0;transition:.25s}
+  .addr-box:hover .copy-ic{stroke:var(--accent2)}
+  .addr-box.copied{border-color:var(--green);border-style:solid}
+
+  .skeleton{
+    flex:1;height:22px;border-radius:8px;
+    background:linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.14) 50%,rgba(255,255,255,.06) 75%);
+    background-size:200% 100%;animation:shimmer 1.4s infinite;
+  }
+  @keyframes shimmer{to{background-position:-200% 0}}
+
+  .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:46px;padding:10px 18px;border-radius:13px;
+    font-family:inherit;font-size:.92rem;font-weight:700;
+    border:1px solid var(--border);background:var(--card);color:var(--text);
+    cursor:pointer;transition:.22s;user-select:none;flex:1;
+  }
+  .btn svg{width:18px;height:18px;stroke:currentColor}
+  .btn:hover{transform:translateY(-2px);border-color:var(--border-strong)}
+  .btn:active{transform:translateY(0) scale(.97)}
+  .btn.primary{background:var(--grad);border:none;color:#fff;box-shadow:0 8px 24px rgba(124,92,255,.35)}
+  .btn.primary:hover{box-shadow:0 10px 30px rgba(34,211,238,.35)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  .refresh-line{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:.78rem;color:var(--muted)}
+  .refresh-line .bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .refresh-line .bar i{display:block;height:100%;width:100%;background:var(--grad);border-radius:99px;transform-origin:right;transition:transform .95s linear}
+  .refresh-line .sec{font-variant-numeric:tabular-nums;min-width:52px;text-align:left;direction:ltr}
+
+  .tips{margin-top:22px;display:grid;gap:10px}
+  .tip{display:flex;gap:10px;align-items:flex-start;font-size:.82rem;color:var(--muted);line-height:1.6}
+  .tip svg{width:16px;height:16px;stroke:var(--accent2);flex-shrink:0;margin-top:3px}
+
+  /* ── inbox ──────────────────────────────────── */
+  .inbox-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .inbox-head h2{font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:10px}
+  .count{
+    background:var(--grad);color:#fff;font-size:.75rem;font-weight:800;
+    min-width:26px;height:26px;padding:0 8px;border-radius:99px;
+    display:inline-grid;place-items:center;
+  }
+  .mini-btn{
+    display:inline-flex;align-items:center;gap:7px;
+    min-height:40px;padding:8px 14px;border-radius:11px;
+    background:var(--card);border:1px solid var(--border);color:var(--muted);
+    font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .mini-btn:hover{color:var(--text);border-color:var(--border-strong)}
+  .mini-btn svg{width:15px;height:15px;stroke:currentColor}
+  .mini-btn.refreshing svg{animation:rot .8s linear infinite}
+
+  .msgs{display:grid;gap:10px;min-width:0}
+  .msg{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:16px;border-radius:14px;cursor:pointer;
+    background:rgba(255,255,255,.03);border:1px solid var(--border);
+    transition:.22s;position:relative;min-width:0;
+  }
+  .msg:hover{transform:translateY(-2px);border-color:var(--border-strong);background:rgba(255,255,255,.06)}
+  .msg .avatar{
+    width:44px;height:44px;border-radius:13px;flex-shrink:0;
+    display:grid;place-items:center;font-weight:800;font-size:1.05rem;color:#fff;
+  }
+  .msg .body{flex:1;min-width:0}
+  .msg .row1{display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .msg .from{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+  .msg .time{font-size:.72rem;color:var(--muted);white-space:nowrap;flex-shrink:0}
+  .msg .subject{font-size:.92rem;font-weight:500;margin:3px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msg .excerpt{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msg.unread .subject{font-weight:800}
+  .msg .unread-dot{
+    position:absolute;top:16px;inset-inline-end:14px;
+    width:9px;height:9px;border-radius:50%;background:var(--accent2);
+    box-shadow:0 0 10px var(--accent2);
+  }
+  .msg .del{
+    position:absolute;bottom:12px;inset-inline-end:12px;
+    width:36px;height:36px;border-radius:10px;border:none;
+    background:rgba(248,113,113,.12);color:var(--red);cursor:pointer;
+    display:grid;place-items:center;opacity:0;transition:.2s;
+  }
+  .msg:hover .del{opacity:1}
+  @media (hover:none){.msg .del{opacity:.85}}
+  .msg .del svg{width:16px;height:16px;stroke:currentColor}
+  .msg .del:hover{background:rgba(248,113,113,.25)}
+  @media (hover:none){.msg{padding-bottom:58px}}
+
+  .empty{
+    text-align:center;padding:52px 20px;color:var(--muted);
+  }
+  .empty .art{
+    width:96px;height:96px;margin:0 auto 18px;border-radius:26px;
+    background:rgba(255,255,255,.04);border:1px solid var(--border);
+    display:grid;place-items:center;position:relative;
+  }
+  .empty .art svg{width:44px;height:44px;stroke:var(--muted)}
+  .empty .art::after{
+    content:'';position:absolute;top:-5px;inset-inline-end:-5px;
+    width:16px;height:16px;border-radius:50%;background:var(--accent2);
+    animation:bob 1.8s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:scale(.7);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+  .empty h3{font-size:1rem;color:var(--text);margin-bottom:6px;font-weight:700}
+  .empty p{font-size:.84rem}
+
+  /* ── modal reader ────────────────────────────── */
+  .overlay{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(3,5,10,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .overlay.open{display:flex;animation:fadeIn .2s ease}
+  @keyframes fadeIn{from{opacity:0}}
+  .modal{
+    width:100%;max-width:720px;max-height:88vh;max-height:88dvh;
+    background:var(--card-solid);border:1px solid var(--border-strong);
+    border-radius:20px;display:flex;flex-direction:column;overflow:hidden;
+    animation:pop .28s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes pop{from{transform:translateY(26px) scale(.97);opacity:0}}
+  .modal-head{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:flex-start}
+  .modal-head .avatar{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:800;font-size:1.1rem;color:#fff;flex-shrink:0}
+  .modal-head .info{flex:1;min-width:0}
+  .modal-head h3{font-size:1.05rem;font-weight:800;word-break:break-word;margin-bottom:5px}
+  .modal-head .meta{font-size:.78rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px}
+  .modal-head .meta span{direction:ltr;unicode-bidi:plaintext}
+  .modal-actions{display:flex;gap:8px;flex-shrink:0}
+  .icon-btn{
+    width:44px;height:44px;border-radius:12px;border:1px solid var(--border);
+    background:var(--card);color:var(--muted);cursor:pointer;
+    display:grid;place-items:center;transition:.2s;
+  }
+  .icon-btn:hover{color:var(--text);border-color:var(--border-strong)}
+  .icon-btn.danger:hover{color:var(--red);border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.1)}
+  .icon-btn svg{width:19px;height:19px;stroke:currentColor}
+  .modal-body{flex:1;overflow:auto;padding:0;min-height:200px}
+  .modal-body iframe{width:100%;height:100%;min-height:380px;border:0;background:#fff;display:block}
+  .modal-body .text-body{padding:24px;white-space:pre-wrap;word-break:break-word;font-size:.92rem;line-height:1.9;color:#dbe2f0}
+  .modal-body .body-loading{padding:60px;text-align:center;color:var(--muted)}
+  .modal-body .body-loading .spin{width:26px;height:26px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--accent2);border-radius:50%;animation:rot .7s linear infinite;margin:0 auto 14px}
+
+  @media (max-width:640px){
+    .overlay{padding:0;align-items:flex-end}
+    .modal{max-width:100%;max-height:94vh;max-height:94dvh;border-radius:20px 20px 0 0;animation:slideUp .3s cubic-bezier(.2,.9,.3,1.1);padding-bottom:env(safe-area-inset-bottom)}
+    @keyframes slideUp{from{transform:translateY(100%)}}
+  }
+
+  /* ── toasts ─────────────────────────────────── */
+  .toasts{
+    position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+    z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;
+    width:min(92vw,420px);pointer-events:none;
+  }
+  .toast{
+    display:flex;align-items:center;gap:10px;
+    background:#131b2e;border:1px solid var(--border-strong);
+    padding:13px 18px;border-radius:14px;font-size:.88rem;font-weight:700;
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+    animation:toastIn .35s cubic-bezier(.2,.9,.3,1.2);
+    pointer-events:auto;max-width:100%;
+  }
+  .toast.out{animation:toastOut .3s ease forwards}
+  @keyframes toastIn{from{transform:translateY(-24px);opacity:0}}
+  @keyframes toastOut{to{transform:translateY(-24px);opacity:0}}
+  .toast .t-ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+  .toast .t-ic svg{width:13px;height:13px;stroke:#fff;stroke-width:3}
+  .toast.success .t-ic{background:var(--green)}
+  .toast.error .t-ic{background:var(--red)}
+  .toast.info .t-ic{background:var(--accent1)}
+
+  footer{
+    border-top:1px solid var(--border);
+    padding:26px 0 calc(26px + env(safe-area-inset-bottom));
+    color:var(--muted);font-size:.8rem;text-align:center;line-height:1.9;
+  }
+
+  @media (max-width:900px){
+    main{padding:22px 0 50px}
+    .card{padding:18px}
+    .addr-box .addr{font-size:.95rem}
+    .brand small{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="orbs"><div class="orb a"></div><div class="orb b"></div><div class="orb c"></div></div>
+
+<div class="toasts" id="toasts"></div>
+
+<header>
+  <div class="wrap header-in">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7L22 7"/></svg>
+      </div>
+      <div>
+        <h1>بريد لحظي</h1>
+        <small>بريد إلكتروني مؤقت — بدون تسجيل</small>
+      </div>
+    </div>
+    <div class="pill" id="statusPill"><span class="dot"></span><span id="statusText">جارٍ الاتصال…</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+
+    <!-- address card -->
+    <section class="card addr-card">
+      <h2>عنوان بريدك المؤقت</h2>
+      <p class="sub">تم إنشاء عنوان فريد لك تلقائياً — استخدمه في أي موقع وستصلك الرسائل هنا فوراً.</p>
+
+      <div class="addr-box" id="addrBox" title="اضغط للنسخ" role="button" tabindex="0" aria-label="نسخ عنوان البريد">
+        <div class="skeleton" id="addrSkeleton"></div>
+        <div class="addr" id="addrText" hidden></div>
+        <svg class="copy-ic" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="copyBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          نسخ العنوان
+        </button>
+        <button class="btn" id="newBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          عنوان جديد
+        </button>
+      </div>
+
+      <div class="refresh-line">
+        <span>تحديث تلقائي</span>
+        <div class="bar"><i id="refreshBar"></i></div>
+        <span class="sec" id="refreshSec">9s</span>
+      </div>
+
+      <div class="tips">
+        <div class="tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2.5 2.5"/></svg>
+          تُحذف الرسائل تلقائياً بعد نحو ساعة من وصولها.
+        </div>
+        <div class="tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+          لا تستخدمه للحسابات المهمة — أي شخص يعرف العنوان يمكنه قراءة رسائله.
+        </div>
+        <div class="tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+          يُحفظ عنوانك في هذا المتصفح فقط، ويظل فعّالاً ما دمت تفتح الصفحة.
+        </div>
+      </div>
+    </section>
+
+    <!-- inbox -->
+    <section class="card">
+      <div class="inbox-head">
+        <h2>صندوق الوارد <span class="count" id="msgCount">0</span></h2>
+        <button class="mini-btn" id="refreshBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+          تحديث
+        </button>
+      </div>
+      <div class="msgs" id="msgList"></div>
+      <div class="empty" id="emptyState">
+        <div class="art">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7L22 7"/></svg>
+        </div>
+        <h3>بانتظار الرسائل…</h3>
+        <p>استخدم عنوانك أعلاه في أي موقع، وستظهر الرسائل هنا تلقائياً خلال ثوانٍ.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    بريد لحظي — خدمة بريد مؤقت مجانية تعمل مباشرة من متصفحك دون أي تسجيل.<br>
+    مدعوم بواجهة Guerrilla Mail المفتوحة · الرسائل تُحذف تلقائياً ولا يمكن استرجاعها.
+  </div>
+</footer>
+
+<!-- message reader modal -->
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div class="avatar" id="mAvatar">؟</div>
+      <div class="info">
+        <h3 id="mSubject">…</h3>
+        <div class="meta">
+          <span id="mFrom"></span>
+          <span id="mDate" style="direction:rtl"></span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="icon-btn danger" id="mDelete" title="حذف الرسالة" aria-label="حذف الرسالة">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+        <button class="icon-btn" id="mClose" title="إغلاق" aria-label="إغلاق">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ═══════════════ إعدادات ═══════════════ */
+const API = 'https://api.guerrillamail.com/ajax.php';
+const POLL_SECONDS = 9;
+const STORE_KEY = 'tempmail_session_v1';
+
+/* ═══════════════ الحالة ═══════════════ */
+const state = {
+  sid: null,
+  addr: null,
+  messages: [],          // آخر قائمة رسائل
+  knownIds: new Set(),   // لاكتشاف الرسائل الجديدة
+  countdown: POLL_SECONDS,
+  currentMsgId: null,
+  busy: false,
+};
+
+/* ═══════════════ عناصر ═══════════════ */
+const $ = id => document.getElementById(id);
+const els = {
+  pill: $('statusPill'), statusText: $('statusText'),
+  addrBox: $('addrBox'), addrText: $('addrText'), addrSkeleton: $('addrSkeleton'),
+  copyBtn: $('copyBtn'), newBtn: $('newBtn'),
+  refreshBtn: $('refreshBtn'), refreshBar: $('refreshBar'), refreshSec: $('refreshSec'),
+  msgList: $('msgList'), msgCount: $('msgCount'), emptyState: $('emptyState'),
+  overlay: $('overlay'), mAvatar: $('mAvatar'), mSubject: $('mSubject'),
+  mFrom: $('mFrom'), mDate: $('mDate'), mBody: $('mBody'),
+  mClose: $('mClose'), mDelete: $('mDelete'),
+  toasts: $('toasts'),
+};
+
+/* ═══════════════ أدوات مساعدة ═══════════════ */
+function decodeEntities(str){
+  if(!str) return '';
+  const t = document.createElement('textarea');
+  t.innerHTML = str;
+  return t.value;
+}
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+const AVATAR_COLORS = ['#7c5cff','#22d3ee','#f472b6','#34d399','#fbbf24','#fb7185','#60a5fa','#a78bfa'];
+function avatarColor(name){
+  let h = 0;
+  for(const ch of String(name)) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function relTime(tsSeconds, fallback){
+  const ts = Number(tsSeconds);
+  if(!ts) return fallback || '';
+  const diff = Date.now() - ts * 1000;
+  const m = Math.floor(diff / 60000);
+  if(diff < 45000) return 'الآن';
+  if(m < 1) return 'قبل دقيقة';
+  if(m < 60) return `قبل ${m} د`;
+  const h = Math.floor(m / 60);
+  if(h < 24) return `قبل ${h} س`;
+  return new Date(ts * 1000).toLocaleDateString('ar', {day:'numeric', month:'short'});
+}
+function toast(msg, type = 'success'){
+  const icons = {
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    error:   '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    info:    '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7L22 7"/></svg>',
+  };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="t-ic">${icons[type] || icons.info}</span><span>${esc(msg)}</span>`;
+  els.toasts.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3400);
+}
+function setStatus(mode, text){
+  els.pill.className = 'pill' + (mode === 'ok' ? ' ok' : mode === 'err' ? ' err' : '');
+  els.statusText.textContent = text;
+}
+
+/* ═══════════════ طبقة الـ API ═══════════════ */
+async function api(f, params = {}, method = 'GET'){
+  const q = new URLSearchParams({ f, agent: 'tempmail_web', ...params });
+  if(state.sid) q.set('sid_token', state.sid);
+  const res = await fetch(`${API}?${q.toString()}`, { method });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if(data && data.auth && data.auth.success === false){
+    const err = new Error('auth');
+    err.authFailed = true;
+    throw err;
+  }
+  return data;
+}
+
+/* ═══════════════ إدارة الجلسة ═══════════════ */
+function saveSession(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({ sid: state.sid, addr: state.addr })); }catch(e){}
+}
+function loadSession(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    if(s && s.sid && s.addr){ state.sid = s.sid; state.addr = s.addr; return true; }
+  }catch(e){}
+  return false;
+}
+function clearSession(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} }
+
+async function createAccount(){
+  setStatus('busy', 'جارٍ إنشاء عنوان…');
+  els.addrText.hidden = true;
+  els.addrSkeleton.style.display = 'block';
+  const data = await api('get_email_address');
+  state.sid = data.sid_token;
+  state.addr = data.email_addr;
+  state.messages = [];
+  state.knownIds = new Set();
+  saveSession();
+  renderAddress();
+  setStatus('ok', 'متصل');
+}
+
+function renderAddress(){
+  els.addrSkeleton.style.display = 'none';
+  els.addrText.hidden = false;
+  els.addrText.textContent = state.addr;
+}
+
+/* ═══════════════ صندوق الوارد ═══════════════ */
+async function refreshInbox(silent = true){
+  if(!state.sid || state.busy) return;
+  state.busy = true;
+  if(!silent) els.refreshBtn.classList.add('refreshing');
+  try{
+    const data = await api('get_email_list', { offset: 0 });
+    const list = (data.list || []).map(m => ({ ...m, mail_id: String(m.mail_id) }));
+
+    // اكتشاف الرسائل الجديدة
+    const fresh = list.filter(m => !state.knownIds.has(m.mail_id));
+    if(state.knownIds.size && fresh.length){
+      const n = fresh.length;
+      toast(n === 1 ? 'وصلت رسالة جديدة' : `وصلت ${n} رسائل جديدة`, 'info');
+    }
+    list.forEach(m => state.knownIds.add(m.mail_id));
+
+    state.messages = list;
+    renderInbox();
+    setStatus('ok', 'متصل');
+  }catch(err){
+    if(err.authFailed){
+      setStatus('busy', 'انتهت الجلسة — إعادة الاتصال…');
+      try{ await createAccount(); await refreshInbox(); }catch(e){ setStatus('err', 'خطأ في الاتصال'); }
+    }else{
+      setStatus('err', 'خطأ في الاتصال');
+      if(!silent) toast('تعذّر الاتصال بالخادم، حاول مجدداً', 'error');
+    }
+  }finally{
+    state.busy = false;
+    els.refreshBtn.classList.remove('refreshing');
+  }
+}
+
+function renderInbox(){
+  const list = state.messages;
+  els.msgCount.textContent = list.length;
+  els.emptyState.style.display = list.length ? 'none' : 'block';
+  els.msgList.innerHTML = list.map(m => {
+    const from = decodeEntities(m.mail_from || '');
+    const subject = decodeEntities(m.mail_subject || '(بدون عنوان)');
+    const excerpt = decodeEntities(m.mail_excerpt || '');
+    const unread = String(m.mail_read) === '0';
+    const color = avatarColor(from);
+    const initial = (from.trim()[0] || '؟').toUpperCase();
+    return `
+      <article class="msg ${unread ? 'unread' : ''}" data-id="${esc(m.mail_id)}" tabindex="0" role="button" aria-label="${esc(subject)}">
+        <div class="avatar" style="background:${color}">${esc(initial)}</div>
+        <div class="body">
+          <div class="row1">
+            <span class="from">${esc(from)}</span>
+            <span class="time">${esc(relTime(m.mail_timestamp, m.mail_date))}</span>
+          </div>
+          <div class="subject">${esc(subject)}</div>
+          <div class="excerpt">${esc(excerpt)}</div>
+        </div>
+        ${unread ? '<span class="unread-dot"></span>' : ''}
+        <button class="del" data-del="${esc(m.mail_id)}" title="حذف" aria-label="حذف الرسالة">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </article>`;
+  }).join('');
+}
+
+/* ═══════════════ قارئ الرسائل ═══════════════ */
+async function openMessage(id){
+  const m = state.messages.find(x => x.mail_id === String(id));
+  if(!m) return;
+  state.currentMsgId = String(id);
+
+  const from = decodeEntities(m.mail_from || '');
+  els.mAvatar.textContent = (from.trim()[0] || '؟').toUpperCase();
+  els.mAvatar.style.background = avatarColor(from);
+  els.mSubject.textContent = decodeEntities(m.mail_subject || '(بدون عنوان)');
+  els.mFrom.textContent = from;
+  els.mDate.textContent = relTime(m.mail_timestamp, m.mail_date);
+  els.mBody.innerHTML = '<div class="body-loading"><div class="spin"></div>جارٍ تحميل الرسالة…</div>';
+  els.overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // اعتبارها مقروءة محلياً
+  m.mail_read = 1;
+  renderInbox();
+
+  try{
+    const full = await api('fetch_email', { email_id: id });
+    const body = full.mail_body || '';
+    const looksHtml = /<\s*(html|body|div|p|table|br|span|a|img)\b/i.test(body);
+    if(looksHtml){
+      const doc = `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <base target="_blank">
+        <style>body{font-family:'Tajawal',system-ui,sans-serif;margin:16px;color:#111;background:#fff;line-height:1.7;word-break:break-word;overflow-x:hidden}img,table,video{max-width:100%!important;height:auto}pre{white-space:pre-wrap;word-break:break-word}a{color:#6d4aff}</style>
+        </head><body>${body}</body></html>`;
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('sandbox', 'allow-popups allow-popups-to-escape-sandbox');
+      iframe.setAttribute('referrerpolicy', 'no-referrer');
+      iframe.srcdoc = doc;
+      els.mBody.innerHTML = '';
+      els.mBody.appendChild(iframe);
+    }else{
+      els.mBody.innerHTML = `<div class="text-body">${esc(decodeEntities(body))}</div>`;
+    }
+  }catch(err){
+    els.mBody.innerHTML = '<div class="body-loading">تعذّر تحميل الرسالة — أغلق وحاول مجدداً.</div>';
+  }
+}
+function closeModal(){
+  els.overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  state.currentMsgId = null;
+}
+
+/* ═══════════════ حذف رسالة ═══════════════ */
+async function deleteMessage(id){
+  id = String(id);
+  // تحديث متفائل
+  state.messages = state.messages.filter(m => m.mail_id !== id);
+  renderInbox();
+  if(state.currentMsgId === id) closeModal();
+  try{
+    await api('del_email', { 'email_ids[]': id });
+    toast('تم حذف الرسالة');
+  }catch(err){
+    toast('تعذّر الحذف، سيُعاد التحميل', 'error');
+    refreshInbox();
+  }
+}
+
+/* ═══════════════ نسخ العنوان ═══════════════ */
+async function copyAddress(){
+  if(!state.addr) return;
+  try{
+    await navigator.clipboard.writeText(state.addr);
+  }catch(e){
+    const t = document.createElement('textarea');
+    t.value = state.addr;
+    t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t);
+    t.select();
+    try{ document.execCommand('copy'); }catch(_){}
+    t.remove();
+  }
+  toast('تم نسخ العنوان بنجاح');
+  els.addrBox.classList.add('copied');
+  setTimeout(() => els.addrBox.classList.remove('copied'), 900);
+}
+
+/* ═══════════════ عنوان جديد ═══════════════ */
+async function newAddress(){
+  if(!confirm('سيتم التخلي عن العنوان الحالي ورسائله نهائياً. هل تريد المتابعة؟')) return;
+  els.newBtn.disabled = true;
+  els.newBtn.innerHTML = '<span class="spin"></span> جارٍ الإنشاء…';
+  const old = { sid: state.sid, addr: state.addr };
+  try{
+    // محاولة حذف الحساب القديم (أفضل جهد)
+    if(old.sid){
+      const q = new URLSearchParams({ f:'forget_me', sid_token: old.sid, email_addr: old.addr, agent:'tempmail_web' });
+      fetch(`${API}?${q}`).catch(() => {});
+    }
+    clearSession();
+    state.sid = null; state.addr = null;
+    await createAccount();
+    await refreshInbox();
+    toast('تم إنشاء عنوان جديد');
+  }catch(err){
+    setStatus('err', 'خطأ في الاتصال');
+    toast('تعذّر إنشاء عنوان جديد', 'error');
+  }finally{
+    els.newBtn.disabled = false;
+    els.newBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> عنوان جديد';
+  }
+}
+
+/* ═══════════════ المؤقّت ═══════════════ */
+setInterval(() => {
+  if(document.hidden || !state.sid) return;
+  state.countdown--;
+  if(state.countdown <= 0){
+    state.countdown = POLL_SECONDS;
+    refreshInbox();
+  }
+  els.refreshBar.style.transform = `scaleX(${state.countdown / POLL_SECONDS})`;
+  els.refreshSec.textContent = state.countdown + 's';
+}, 1000);
+
+/* ═══════════════ الأحداث ═══════════════ */
+els.copyBtn.addEventListener('click', copyAddress);
+els.addrBox.addEventListener('click', copyAddress);
+els.addrBox.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); copyAddress(); } });
+els.newBtn.addEventListener('click', newAddress);
+els.refreshBtn.addEventListener('click', () => { state.countdown = POLL_SECONDS; refreshInbox(false); });
+
+els.msgList.addEventListener('click', e => {
+  const del = e.target.closest('[data-del]');
+  if(del){ e.stopPropagation(); deleteMessage(del.dataset.del); return; }
+  const item = e.target.closest('.msg');
+  if(item) openMessage(item.dataset.id);
+});
+els.msgList.addEventListener('keydown', e => {
+  if(e.key !== 'Enter') return;
+  const item = e.target.closest('.msg');
+  if(item) openMessage(item.dataset.id);
+});
+
+els.mClose.addEventListener('click', closeModal);
+els.mDelete.addEventListener('click', () => { if(state.currentMsgId) deleteMessage(state.currentMsgId); });
+els.overlay.addEventListener('click', e => { if(e.target === els.overlay) closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+/* ═══════════════ الإقلاع ═══════════════ */
+(async function init(){
+  try{
+    if(loadSession()){
+      renderAddress();
+      setStatus('ok', 'متصل');
+      await refreshInbox();
+    }else{
+      await createAccount();
+      await refreshInbox();
+    }
+  }catch(err){
+    setStatus('err', 'خطأ في الاتصال');
+    els.addrSkeleton.style.display = 'none';
+    els.addrText.hidden = false;
+    els.addrText.textContent = 'تعذّر الاتصال — اسحب لتحديث الصفحة';
+    toast('تعذّر إنشاء بريد مؤقت، تحقق من اتصالك', 'error');
+  }
+})();
+</script>
+</body>
+</html>
